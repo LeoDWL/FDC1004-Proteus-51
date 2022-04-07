@@ -1,0 +1,9 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\LCD12864.obj",
+".\Objects\i2c.obj",
+".\Objects\delay.obj",
+".\Objects\FDC1004.obj" 
+TO ".\Objects\LCD_Test" 
+PRINT(".\Listings\LCD_Test.m51") RAMSIZE(256) 
+DISABLEWARNING (16) 

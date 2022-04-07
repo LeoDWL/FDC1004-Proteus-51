@@ -1,0 +1,141 @@
+C51 COMPILER V9.59.0.0   I2C                                                               04/07/2022 16:25:20 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE I2C
+OBJECT MODULE PLACED IN .\Objects\i2c.obj
+COMPILER INVOKED BY: D:\keil5\C51\BIN\C51.EXE Hardware\src\i2c.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Hardware\src;.\Hardwa
+                    -re\inc) DEBUG OBJECTEXTEND PRINT(.\Listings\i2c.lst) OBJECT(.\Objects\i2c.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          #include "i2c.h"
+   3          #include "delay.h"
+   4          
+   5          //函数声明
+   6          //开始
+   7          void start()
+   8          {
+   9   1          sda = 1;
+  10   1          delay_us();
+  11   1          scl = 1;
+  12   1          delay_us();
+  13   1          sda = 0;
+  14   1          delay_us();
+  15   1      }
+  16          
+  17          //结束
+  18          void stop()
+  19          {
+  20   1          sda = 0;
+  21   1          delay_us();
+  22   1          scl = 1;
+  23   1          delay_us();
+  24   1          sda = 1;
+  25   1          delay_us();
+  26   1      }
+  27          
+  28          //等待应答
+  29          void respons()
+  30          {
+  31   1          uchar i;
+  32   1          scl = 1;
+  33   1          delay_us();
+  34   1      
+  35   1          while((sda==1) && (i<250))
+  36   1              i++;
+  37   1      
+  38   1          scl = 0;
+  39   1          delay_us();
+  40   1      }
+  41          
+  42          //写数据
+  43          void write_byte(uchar dat)
+  44          {
+  45   1          uchar i,temp;
+  46   1          temp = dat;
+  47   1          for(i=0; i<8; i++)
+  48   1          {
+  49   2              temp = temp << 1;
+  50   2              scl = 0;
+  51   2              delay_us();
+  52   2              sda = CY;
+  53   2              delay_us();
+  54   2              scl = 1;
+C51 COMPILER V9.59.0.0   I2C                                                               04/07/2022 16:25:20 PAGE 2   
+
+  55   2              delay_us();
+  56   2          }
+  57   1      
+  58   1          scl = 0;
+  59   1          delay_us();
+  60   1          sda = 1;
+  61   1          delay_us();
+  62   1      }
+  63          
+  64          //读数据
+  65          uchar read_byte()
+  66          {
+  67   1          uchar i,k;
+  68   1          scl = 0;
+  69   1          delay_us();
+  70   1          sda = 1;
+  71   1          delay_us();
+  72   1          for(i=0; i<8; i++)
+  73   1          {
+  74   2              scl = 1;
+  75   2              delay_us();
+  76   2              k = (k<<1) | sda;
+  77   2              scl = 0;
+  78   2              delay_us();
+  79   2          }
+  80   1          return k;
+  81   1      }
+  82          
+  83          //向芯片的指定地址，写入数据
+  84          void write_at_addr(uchar addr,uchar dat)
+  85          {
+  86   1          start();
+  87   1          //设定地址，AT24C02固定地址为1010，再加上设定的地址，
+  88   1          //我设置为000，最后一位表示读或写，0表示写，所以为1010 0000，即0xa0
+  89   1          write_byte(0xa0);
+  90   1          respons();//等待芯片应答
+  91   1          write_byte(addr);//设置要写入数据的地址
+  92   1          respons();//等待芯片应答
+  93   1          write_byte(dat);//写入要保存的数据
+  94   1          respons();//等待芯片应答
+  95   1          stop();
+  96   1      }
+  97          
+  98          //读取芯片指定地址的数据
+  99          uchar read_at_addr(uchar addr)
+ 100          {
+ 101   1          uchar dat;
+ 102   1          start();
+ 103   1          write_byte(0xa0);//向芯片发送一个写操作信号
+ 104   1          respons();
+ 105   1          write_byte(addr);//设置要读取的地址
+ 106   1          respons();
+ 107   1          start();
+ 108   1          write_byte(0xa1);//向芯片发送一个读操作信号
+ 109   1          respons();
+ 110   1          dat = read_byte();
+ 111   1          stop();
+ 112   1          return dat;
+ 113   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+C51 COMPILER V9.59.0.0   I2C                                                               04/07/2022 16:25:20 PAGE 3   
+
+   CODE SIZE        =    239    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       9
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,341 @@
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE LCD12864
+OBJECT MODULE PLACED IN .\Objects\LCD12864.obj
+COMPILER INVOKED BY: D:\keil5\C51\BIN\C51.EXE Hardware\src\LCD12864.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Hardware\src;.\H
+                    -ardware\inc) DEBUG OBJECTEXTEND PRINT(.\Listings\LCD12864.lst) OBJECT(.\Objects\LCD12864.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          #include "LCD12864.h"
+   3          #include "code.h"
+   4          #include "delay.h"
+   5          
+   6          void nop(void)
+   7          {
+   8   1          _nop_();
+   9   1          _nop_();
+  10   1          _nop_();
+  11   1          _nop_();
+  12   1          _nop_();
+  13   1          _nop_();
+  14   1          _nop_();
+  15   1          _nop_();
+  16   1          _nop_();
+  17   1          _nop_();
+  18   1          _nop_();
+  19   1      }
+  20          
+  21          //状态检查
+  22          void CheckState(void)
+  23          {
+  24   1          uchar dat;
+  25   1          dat = 0x00;
+  26   1          di=0;
+  27   1          rw=1;
+  28   1          /*  do
+  29   1              {
+  30   1                      P1=0xff;
+  31   1                      en=1;
+  32   1                      dat=P1;
+  33   1                      en=0;
+  34   1                      dat&=0x80; //仅当第7位为0时才可操作
+  35   1              }while(dat);*/
+  36   1      }
+  37          
+  38          //写显示数据
+  39          //dat:显示数据
+  40          void WriteByte(uchar dat)
+  41          {
+  42   1          CheckState();
+  43   1          di=1;
+  44   1          rw=0;
+  45   1          LCD12864DataPort=dat;
+  46   1          en=1;
+  47   1          en=0;
+  48   1      }
+  49          
+  50          
+  51          void lcd_cmd_wr(uchar command)
+  52          {
+  53   1          cs1=1;
+  54   1          cs2=1;
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 2   
+
+  55   1          CheckState();
+  56   1          rw=0;
+  57   1          di=0;
+  58   1          LCD12864DataPort=command;
+  59   1          en=1;
+  60   1          en=0;
+  61   1      }
+  62          /*-----------------------------------------------------------------------------------------------------*/
+  63          //向LCD发送命令
+  64          //command :命令
+  65          void SendCommandToLCD(uchar command)
+  66          {
+  67   1          CheckState();
+  68   1          rw=0;
+  69   1          di=0;
+  70   1          LCD12864DataPort=command;
+  71   1          en=1;
+  72   1          en=0;
+  73   1      }
+  74          /*----------------------------------------------------------------------------------------------------*/
+  75          //设定行地址(页)--X 0-7
+  76          void SetLine(uchar line)
+  77          {
+  78   1          line &= 0x07; // 0<=line<=7
+  79   1          line |= 0xb8; //1011 1xxx
+  80   1          SendCommandToLCD(line);
+  81   1      }
+  82          //设定列地址--Y 0-63
+  83          void SetColumn(uchar column)
+  84          {
+  85   1          column &= 0x3f; // 0=<column<=63
+  86   1          column |= 0x40; //01xx xxxx
+  87   1          SendCommandToLCD(column);
+  88   1      }
+  89          //设定显示开始行--XX
+  90          void SetStartLine(uchar startline) //0--63
+  91          {
+  92   1          //startline &= 0x07;
+  93   1          startline |= 0xc0; //1100 0000
+  94   1          SendCommandToLCD(startline);
+  95   1      }
+  96          //开关显示
+  97          void SetOnOff(uchar onoff)
+  98          {
+  99   1          onoff|=0x3e; //0011 111x
+ 100   1          SendCommandToLCD(onoff);
+ 101   1      }
+ 102          /*---------------------------------------------------------------------------------------------------*/
+ 103          //选择屏幕
+ 104          //screen: 0-全屏,1-左屏,2-右屏
+ 105          void SelectScreen(uchar screen)
+ 106          {   //北京显示器:负有效 cs1: 0--右; cs2: 0--左
+ 107   1          switch(screen)
+ 108   1          {
+ 109   2          case 0:
+ 110   2              cs1=0;//全屏
+ 111   2              nop();
+ 112   2              cs2=0;
+ 113   2              nop();
+ 114   2              break;
+ 115   2          case 1:
+ 116   2              cs1=1;//左屏
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 3   
+
+ 117   2              nop();
+ 118   2              cs2=0;
+ 119   2              nop();
+ 120   2              break;
+ 121   2          case 2:
+ 122   2              cs1=0;//右屏
+ 123   2              nop();
+ 124   2              cs2=1;
+ 125   2              nop();
+ 126   2              break;
+ 127   2          default:
+ 128   2              break;
+ 129   2          }
+ 130   1      }
+ 131          /*---------------------------------------------------------------------------------------------------*/
+ 132          //清屏
+ 133          //screen: 0-全屏,1-左屏,2-右
+ 134          void ClearScreen(uchar screen)
+ 135          {
+ 136   1          uchar i,j;
+ 137   1          SelectScreen(screen);
+ 138   1          for(i=0; i<8; i++)
+ 139   1          {
+ 140   2              SetLine(i);
+ 141   2              for(j=0; j<64; j++)
+ 142   2              {
+ 143   3                  WriteByte(0x00);
+ 144   3              }
+ 145   2          }
+ 146   1      }
+ 147          /*--------------------------------------------------------------------------------------------------*/
+ 148          //显示8*8点阵
+ 149          //lin:行(0-7), column: 列(0-127)
+ 150          //address : 字模区首地址
+ 151          void Show8x8(uchar lin,uchar column,uchar *address)
+ 152          {
+ 153   1          uchar i;
+ 154   1      //      if(column>128) {return;}
+ 155   1          if(column<64)
+ 156   1          {
+ 157   2              SelectScreen(1); //如果列数<64则从第一屏上开始写
+ 158   2              SetLine(lin);
+ 159   2              SetColumn(column);
+ 160   2              for(i=0; i<8; i++)
+ 161   2              {
+ 162   3                  if(column+i<64)
+ 163   3                  {
+ 164   4                      WriteByte(*(address+i));
+ 165   4                  }
+ 166   3                  else
+ 167   3                  {
+ 168   4                      SelectScreen(2);
+ 169   4                      SetLine(lin);
+ 170   4                      SetColumn(column-64+i);
+ 171   4                      WriteByte(*(address+i));
+ 172   4                  }
+ 173   3              }
+ 174   2          }
+ 175   1          else
+ 176   1          {
+ 177   2              SelectScreen(2); //否则从第二屏上开始写
+ 178   2              column-=64; //防止越界
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 4   
+
+ 179   2              SetLine(lin);
+ 180   2              SetColumn(column);
+ 181   2              for(i=0; i<8; i++)
+ 182   2              {
+ 183   3                  if(column+i<64)
+ 184   3                  {
+ 185   4                      WriteByte(*(address+i));
+ 186   4                  }
+ 187   3                  else
+ 188   3                  {
+ 189   4                      SelectScreen(1);
+ 190   4                      SetLine(lin);
+ 191   4                      SetColumn(column-64+i);
+ 192   4                      WriteByte(*(address+i));
+ 193   4                  }
+ 194   3              }
+ 195   2          }
+ 196   1      }
+ 197          
+ 198          //显示数字8*16
+ 199          void ShowNumber(uchar lin,uchar column,uchar num)
+ 200          {
+ 201   1          uchar *address;
+ 202   1          address=&Numcode[num];
+ 203   1          Show8x8(lin,column,address);
+ 204   1          Show8x8(lin+1,column,address+8);
+ 205   1      }
+ 206          
+ 207          
+ 208          
+ 209          //显示汉字16*16
+ 210          void ShowChina(uchar lin,uchar column,uchar num)
+ 211          {
+ 212   1          uchar *address;
+ 213   1      //      if(lin>7 || column>127){return;}
+ 214   1          address = &word[num];
+ 215   1          Show8x8(lin,column,address);
+ 216   1          Show8x8(lin,column+8,address+8);
+ 217   1          Show8x8(lin+1,column,address+16);
+ 218   1          Show8x8(lin+1,column+8,address+24);
+ 219   1      }
+ 220          
+ 221          void InitLCD(void) //初始化LCD
+ 222          {
+ 223   1          uchar i=2000; //延时
+ 224   1          while(i--);
+ 225   1          SetOnOff(1); //开显示
+ 226   1          ClearScreen(1);//清屏
+ 227   1          ClearScreen(2);
+ 228   1          SetStartLine(0); //开始行:0
+ 229   1      }
+ 230          
+ 231          void digplaystart() {//开机显示
+ 232   1          uchar i=0;
+ 233   1          ShowChina(2,64-16*1.5,0);
+ 234   1          ShowChina(2,64-16*0.5,1);
+ 235   1          ShowChina(2,64+16*0.5,2);
+ 236   1          ShowChina(2,64+16*1.5,3);
+ 237   1          for (i=0; i<10; i++) {
+ 238   2              ShowNumber(4,32+8*i,19);
+ 239   2              delay5ms();
+ 240   2              delay5ms();
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 5   
+
+ 241   2          }
+ 242   1      }
+ 243          
+ 244          //用于实时显示具体坐标的数字的函数，其中x对应的是显示器的行，y对应的是显示器的列，m对应的是要显示的数字
+ 245          void DisP_parameters(int x,int y,int m) {
+ 246   1          switch(m) {
+ 247   2          case(1):
+ 248   2              ShowNumber(x,y,1);
+ 249   2              break;
+ 250   2          case(2):
+ 251   2              ShowNumber(x,y,2);
+ 252   2              break;
+ 253   2          case(3):
+ 254   2              ShowNumber(x,y,3);
+ 255   2              break;
+ 256   2          case(4):
+ 257   2              ShowNumber(x,y,4);
+ 258   2              break;
+ 259   2          case(5):
+ 260   2              ShowNumber(x,y,5);
+ 261   2              break;
+ 262   2          case(6):
+ 263   2              ShowNumber(x,y,6);
+ 264   2              break;
+ 265   2          case(7):
+ 266   2              ShowNumber(x,y,7);
+ 267   2              break;
+ 268   2          case(8):
+ 269   2              ShowNumber(x,y,8);
+ 270   2              break;
+ 271   2          case(9):
+ 272   2              ShowNumber(x,y,9);
+ 273   2              break;
+ 274   2          case(0):
+ 275   2              ShowNumber(x,y,0);
+ 276   2              break;
+ 277   2          case(10):
+ 278   2              ShowNumber(x,y,13);
+ 279   2              break;
+ 280   2          case(11):
+ 281   2              ShowNumber(x,y,14);
+ 282   2              break;
+ 283   2          case(12):
+ 284   2              ShowNumber(x,y,15);
+ 285   2              break;
+ 286   2          case(13):
+ 287   2              ShowNumber(x,y,16);
+ 288   2              break;
+ 289   2          }
+ 290   1      }
+ 291          
+ 292          ////显示电容的数值
+ 293          //void Disp_Cap(unsigned int c)
+ 294          //{
+ 295          //  unsigned char i;
+ 296          //  unsigned char Disp1[4];
+ 297          //    i = c/10000;
+ 298          //      Disp1[0] = digit[i];
+ 299          //      i = c/1000%10;
+ 300          //      Disp1[1] = digit[i];
+ 301          //      i = c/100%10;
+ 302          //      Disp1[2] = digit[i];
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 6   
+
+ 303          //      i = c/10%10;
+ 304          //      Disp1[3] = digit[i];
+ 305          //  for(i=0;i<4;i++)
+ 306          //  {LCDMEM[i+1] = Disp1[i];}
+ 307          //}
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    791    ----
+   CONSTANT SIZE    =    832    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      22
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

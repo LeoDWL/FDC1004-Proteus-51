@@ -1,0 +1,272 @@
+C51 COMPILER V9.00   I2C                                                                   05/17/2010 21:29:14 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE I2C
+OBJECT MODULE PLACED IN i2c.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE i2c.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg52.h>
+   2                                                     
+   3          #define uchar unsigned char      
+   4          
+   5          uchar code table[] = "Write:";
+   6          uchar code table2[] = "Read :";
+   7          uchar code write_data[] = "World";
+   8          
+   9          sbit port_rs = P3 ^ 4;  //数据/命令选择端，1是数据，0是命令（状态）
+  10          sbit port_rw = P3 ^ 5;  //读写控制，1是读，0是写
+  11          sbit port_en = P3 ^ 6;  //使能端，高电平允许
+  12          
+  13          sbit scl = P1 ^ 0;
+  14          sbit sda = P1 ^ 1;
+  15          
+  16          void delay(uchar t);
+  17          void set_lcd(uchar val);
+  18          void set_data(uchar dat);
+  19          void write_at_addr(uchar addr,uchar dat);
+  20          uchar read_at_addr(uchar addr);
+  21          void init();
+  22          void delay_us();
+  23          
+  24          void main()
+  25          {
+  26   1              uchar i;
+  27   1              init();
+  28   1      
+  29   1              set_lcd(0x80);//把位置设置为第一行第一位
+  30   1              for(i=0;i<6;i++)
+  31   1                      set_data(table[i]);
+  32   1      
+  33   1              set_lcd(0x80+0x40);//把位置设置到第二行第一位    
+  34   1              for(i=0;i<6;i++)
+  35   1                      set_data(table2[i]);
+  36   1      
+  37   1              delay(5);
+  38   1      
+  39   1              /*在芯片中写入字符LXJ，再从芯片读取出来，同时显示在液晶上*/
+  40   1              for(i=0;*(write_data+i)!='\0';i++)
+  41   1              {
+  42   2                      set_lcd(0x80+6+i+1);
+  43   2                      set_data(*(write_data+i));      
+  44   2                      write_at_addr(i+1,*(write_data+i));
+  45   2              
+  46   2                      set_lcd(0x80+0x40+6+i+1);
+  47   2                      set_data( read_at_addr(i+1) );
+  48   2              }
+  49   1      
+  50   1              //下面的形式，要在后面加延时
+  51   1              /*set_lcd(0x80+7);
+  52   1              set_data('H');  
+  53   1              set_data('e');
+  54   1              set_data('l');
+  55   1              set_data('l');
+C51 COMPILER V9.00   I2C                                                                   05/17/2010 21:29:14 PAGE 2   
+
+  56   1              set_data('o');
+  57   1              write_at_addr(1,'H'); delay(5); 
+  58   1              write_at_addr(2,'e'); delay(5);
+  59   1              write_at_addr(3,'l'); delay(5);
+  60   1              write_at_addr(4,'l'); delay(5);
+  61   1              write_at_addr(5,'o'); delay(5);
+  62   1      
+  63   1              set_lcd(0x80+0x40+7);
+  64   1              set_data( read_at_addr(1) );  
+  65   1              set_data( read_at_addr(2) );
+  66   1              set_data( read_at_addr(3) );
+  67   1              set_data( read_at_addr(4) );
+  68   1              set_data( read_at_addr(5) ); */
+  69   1      
+  70   1              while(1);
+  71   1      }
+  72          
+  73          void init()
+  74          {       
+  75   1              //设置液晶
+  76   1              set_lcd(0x38);//设置16*12显示，5*7点阵，8位数据接口
+  77   1              set_lcd(0x0c);//设置开显示，不显示光标
+  78   1              set_lcd(0x06);//写一个字符后地址指针加1
+  79   1              set_lcd(0x01);//显示清0，数据指针清0
+  80   1              set_lcd(0x0f);//显示光标，并让光标闪烁
+  81   1      
+  82   1              //设置I2C芯片
+  83   1              sda = 1;
+  84   1              delay_us();
+  85   1              scl = 1;
+  86   1              delay_us();
+  87   1      }
+  88          
+  89          /*********************************液晶部分***********************************/
+  90          //延时
+  91          void delay(uchar t)
+  92          {                                
+  93   1              uchar i,j; 
+  94   1              for(i=0;i<t;i++)
+  95   1                      for(j=0;j<110;j++)
+  96   1                              ;
+  97   1      }
+  98          
+  99          //设置液晶屏参数
+ 100          void set_lcd(uchar val)
+ 101          {
+ 102   1              port_rs = 0;//设置成命令
+ 103   1              delay(1);
+ 104   1              port_rw = 0;
+ 105   1              delay(1);
+ 106   1              port_en = 1;
+ 107   1              delay(1);
+ 108   1              P2 = val;//设置命令
+ 109   1              delay(5);
+ 110   1              port_en = 0;
+ 111   1      }
+ 112          
+ 113          //设置液晶屏数据
+ 114          void set_data(uchar dat)
+ 115          {          
+ 116   1              port_rs = 1;//设置成数据
+ 117   1              delay(1);
+C51 COMPILER V9.00   I2C                                                                   05/17/2010 21:29:14 PAGE 3   
+
+ 118   1              port_rw = 0;
+ 119   1              delay(1);
+ 120   1              port_en = 1;
+ 121   1              delay(1);
+ 122   1              P2 = dat;//设置数据
+ 123   1              delay(5);
+ 124   1              port_en = 0;
+ 125   1      }
+ 126          
+ 127          /*****************************************存储芯片部分********************************/
+ 128          //延时4-5微秒
+ 129          void delay_us()
+ 130          {
+ 131   1              ;;;
+ 132   1      }
+ 133          
+ 134          //开始
+ 135          void start()
+ 136          {
+ 137   1              sda = 1;
+ 138   1              delay_us();
+ 139   1              scl = 1;
+ 140   1              delay_us();
+ 141   1              sda = 0;
+ 142   1              delay_us();             
+ 143   1      }
+ 144          
+ 145          //结束
+ 146          void stop()
+ 147          {
+ 148   1              sda = 0;
+ 149   1              delay_us();
+ 150   1              scl = 1;
+ 151   1              delay_us();
+ 152   1              sda = 1;
+ 153   1              delay_us();
+ 154   1      }
+ 155          
+ 156          //等待应答
+ 157          void respons()
+ 158          {
+ 159   1              uchar i;
+ 160   1              scl = 1;
+ 161   1              delay_us();
+ 162   1      
+ 163   1              while((sda==1) && (i<250))
+ 164   1                      i++;
+ 165   1                      
+ 166   1              scl = 0;
+ 167   1              delay_us(); 
+ 168   1      }
+ 169          
+ 170          //写数据
+ 171          void write_byte(uchar dat)
+ 172          {
+ 173   1              uchar i,temp;
+ 174   1              temp = dat;
+ 175   1              for(i=0;i<8;i++)
+ 176   1              {
+ 177   2                      temp = temp << 1;
+ 178   2                      scl = 0;
+ 179   2                      delay_us();
+C51 COMPILER V9.00   I2C                                                                   05/17/2010 21:29:14 PAGE 4   
+
+ 180   2                      sda = CY;
+ 181   2                      delay_us();
+ 182   2                      scl = 1;
+ 183   2                      delay_us();
+ 184   2              }
+ 185   1      
+ 186   1              scl = 0;
+ 187   1              delay_us();
+ 188   1              sda = 1;
+ 189   1              delay_us();
+ 190   1      }
+ 191          
+ 192          //读数据
+ 193          uchar read_byte()
+ 194          {
+ 195   1              uchar i,k;
+ 196   1              scl = 0;
+ 197   1              delay_us();
+ 198   1              sda = 1;
+ 199   1              delay_us();
+ 200   1              for(i=0; i<8; i++)
+ 201   1              {
+ 202   2                      scl = 1;
+ 203   2                      delay_us();
+ 204   2                      k = (k<<1) | sda;
+ 205   2                      scl = 0;
+ 206   2                      delay_us();
+ 207   2              }
+ 208   1              return k;
+ 209   1      }
+ 210          
+ 211          //向芯片的指定地址，写入数据
+ 212          void write_at_addr(uchar addr,uchar dat)
+ 213          {
+ 214   1              start();
+ 215   1              //设定地址，AT24C02固定地址为1010，再加上设定的地址，
+ 216   1              //我设置为000，最后一位表示读或写，0表示写，所以为1010 0000，即0xa0
+ 217   1              write_byte(0xa0);
+ 218   1              respons();//等待芯片应答
+ 219   1              write_byte(addr);//设置要写入数据的地址
+ 220   1              respons();//等待芯片应答
+ 221   1              write_byte(dat);//写入要保存的数据
+ 222   1              respons();//等待芯片应答
+ 223   1              stop();
+ 224   1      }
+ 225          
+ 226          //读取芯片指定地址的数据
+ 227          uchar read_at_addr(uchar addr)
+ 228          {
+ 229   1              uchar dat;
+ 230   1              start();
+ 231   1              write_byte(0xa0);//向芯片发送一个写操作信号
+ 232   1              respons();
+ 233   1              write_byte(addr);//设置要读取的地址
+ 234   1              respons();
+ 235   1              start();
+ 236   1              write_byte(0xa1);//向芯片发送一个读操作信号
+ 237   1              respons();
+ 238   1              dat = read_byte();
+ 239   1              stop();
+ 240   1              return dat;
+ 241   1      }
+C51 COMPILER V9.00   I2C                                                                   05/17/2010 21:29:14 PAGE 5   
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    396    ----
+   CONSTANT SIZE    =     20    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,573 @@
+C51 COMPILER V9.59.0.0   FDC1004                                                           04/07/2022 16:25:20 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE FDC1004
+OBJECT MODULE PLACED IN .\Objects\FDC1004.obj
+COMPILER INVOKED BY: D:\keil5\C51\BIN\C51.EXE Hardware\src\FDC1004.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Hardware\src;.\Ha
+                    -rdware\inc) DEBUG OBJECTEXTEND PRINT(.\Listings\FDC1004.lst) OBJECT(.\Objects\FDC1004.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          #include "FDC1004.h"
+   3          #include "delay.h"
+   4          #include "LCD12864.h"
+   5          
+   6          //void Display(unsigned int c)
+   7          //{
+   8          //    unsigned char i;
+   9          //    unsigned char Disp1[4];
+  10          //    i = c/10000;
+  11          //    Disp1[0] = digit[i];
+  12          //    i = c/1000%10;
+  13          //    Disp1[1] = digit[i];
+  14          //    i = c/100%10;
+  15          //    Disp1[2] = digit[i];
+  16          //    i = c/10%10;
+  17          //    Disp1[3] = digit[i];
+  18          //    for(i=0; i<4; i++)
+  19          //    {
+  20          //        LCDMEM[i+1] = Disp1[i];
+  21          //    }
+  22          //}
+  23          
+  24          //void Write_Opm_Float(void)
+  25          //{
+  26          //    unsigned char *FDC1004_StartAdr=(unsigned char *)0x01000;
+  27          //    int *ptr=(int*)0x01000;
+  28          ////  erase flash
+  29          //    FCTL1=0x0A502;            //Erease=1
+  30          //    FCTL3=0x0A500;            //LOCK=0
+  31          //    *ptr=0;
+  32          ////
+  33          //    FCTL1=0X0A540;            //WRT=1
+  34          //    //´æ´¢Á¿³Ì
+  35          //    *FDC1004_StartAdr=f1.c[0];
+  36          //    *(FDC1004_StartAdr+1)=f1.c[1];
+  37          //    *(FDC1004_StartAdr+2)=f1.c[2];
+  38          //    *(FDC1004_StartAdr+3)=f1.c[3];
+  39          //    *(FDC1004_StartAdr+4)=dB_dBm_Flag;
+  40          //}
+  41          //void Read_Opm_Float(void)
+  42          //{
+  43          //    unsigned char *FDC1004_StartAdr=(unsigned char*)0x01000;
+  44          //    f1.c[0]=*FDC1004_StartAdr;
+  45          //    f1.c[1]=*(FDC1004_StartAdr+1);
+  46          //    f1.c[2]=*(FDC1004_StartAdr+2);
+  47          //    f1.c[3]=*(FDC1004_StartAdr+3);
+  48          //    dB_dBm_Flag=*(FDC1004_StartAdr+4);
+  49          //}
+  50          
+  51          /*******************************************************************************
+  52          IO¿ÚÄ£ÄâIIC£¬¶ÁÐ´FDC1004
+  53          ********************************************************************************/
+  54          /*******************************************************************************
+C51 COMPILER V9.59.0.0   FDC1004                                                           04/07/2022 16:25:20 PAGE 2   
+
+  55          * º¯ÊýÃû        :  FDC1004_Start
+  56          * ¹¦ÄÜÃèÊö              :
+  57          * Èë¿Úº¯Êý      :
+  58          * ·µ»ØÖµ                :
+  59          *******************************************************************************/
+  60          void FDC1004_Start(void)
+  61          {
+  62   1          FDC1004_SDA_HIG;
+  63   1          delayus(1);//10*1us
+  64   1          FDC1004_SCL_HIG;
+  65   1          delayus(1);//10*1us
+  66   1          FDC1004_SDA_LOW;
+  67   1          delayus(1);//10*1us
+  68   1          FDC1004_SCL_LOW;
+  69   1      }
+  70          /*******************************************************************************
+  71          * º¯ÊýÃû        :  FDC1004_Start
+  72          * ¹¦ÄÜÃèÊö              :
+  73          * Èë¿Úº¯Êý      :
+  74          * ·µ»ØÖµ                :
+  75          *******************************************************************************/
+  76          void FDC1004_Stop(void)
+  77          {
+  78   1          FDC1004_SDA_LOW;
+  79   1          delayus(1);//10*1us
+  80   1          FDC1004_SCL_HIG;
+  81   1          delayus(1);//10*1us
+  82   1          FDC1004_SDA_HIG;
+  83   1          delayus(1);//10*1us
+  84   1          FDC1004_SCL_LOW;
+  85   1      }
+  86          /*******************************************************************************
+  87          * º¯ÊýÃû        :  Answer
+  88          * ¹¦ÄÜÃèÊö              :
+  89          * Èë¿Úº¯Êý      :
+  90          * ·µ»ØÖµ                :
+  91          *******************************************************************************/
+  92          void Answer(void)
+  93          {
+  94   1          FDC1004_SCL_LOW;
+  95   1          delayus(1);//10*1us
+  96   1          FDC1004_SDA_LOW;
+  97   1          delayus(1);//10*1us
+  98   1          FDC1004_SCL_HIG;
+  99   1          delayus(1);//10*1us
+ 100   1          FDC1004_SCL_LOW;
+ 101   1          FDC1004_SDA_HIG;
+ 102   1      }
+ 103          /*******************************************************************************
+ 104          * º¯ÊýÃû        :  NAnswer
+ 105          * ¹¦ÄÜÃèÊö              :
+ 106          * Èë¿Úº¯Êý      :
+ 107          * ·µ»ØÖµ                :
+ 108          *******************************************************************************/
+ 109          void NAnswer(void)
+ 110          {
+ 111   1          FDC1004_SDA_OUT;
+ 112   1          FDC1004_SDA_HIG;
+ 113   1          delayus(1);//10*1us
+ 114   1          FDC1004_SCL_HIG;
+ 115   1          delayus(1);//10*1us
+ 116   1          FDC1004_SCL_LOW;
+C51 COMPILER V9.59.0.0   FDC1004                                                           04/07/2022 16:25:20 PAGE 3   
+
+ 117   1      }
+ 118          /*******************************************************************************
+ 119          * º¯ÊýÃû        :  ACK MASTER
+ 120          * ¹¦ÄÜÃèÊö              :
+ 121          * Èë¿Úº¯Êý      :
+ 122          * ·µ»ØÖµ                :
+ 123          *******************************************************************************/
+ 124          unsigned char Ack_Master(void)
+ 125          {
+ 126   1          FDC1004_SCL_HIG;
+ 127   1          delayus(1);//10*1us
+ 128   1          FDC1004_SDA_IN;
+ 129   1          delayus(1);//10*1us
+ 130   1          if(FDC1004_SDA == 0)
+ 131   1          {
+ 132   2              FDC1004_SCL_LOW;
+ 133   2              FDC1004_SDA_OUT;
+ 134   2              return(0);
+ 135   2          }
+ 136   1          else
+ 137   1          {
+ 138   2              FDC1004_SCL_LOW;
+ 139   2              FDC1004_SDA_OUT;
+ 140   2              return(1);
+ 141   2          }
+ 142   1      }
+ 143          void SAck_Master(void)
+ 144          {
+ 145   1          FDC1004_SDA_OUT;
+ 146   1          delayus(1);//10*1us
+ 147   1          FDC1004_SDA_LOW;
+ 148   1          delayus(1);//10*1us
+ 149   1          FDC1004_SCL_HIG;
+ 150   1          delayus(1);//10*1us
+ 151   1          FDC1004_SCL_LOW;
+ 152   1      }
+ 153          /*******************************************************************************
+ 154          * º¯ÊýÃû        :  NACK MASTER
+ 155          * ¹¦ÄÜÃèÊö              :
+ 156          * Èë¿Úº¯Êý      :
+ 157          * ·µ»ØÖµ                :
+ 158          *******************************************************************************/
+ 159          unsigned char Nack_Master(void)
+ 160          {
+ 161   1          delayus(1);//10*1us
+ 162   1          FDC1004_SCL_HIG;
+ 163   1          delayus(1);//10*1us
+ 164   1          FDC1004_SDA_IN;
+ 165   1          if(FDC1004_SDA == 0)
+ 166   1          {
+ 167   2              FDC1004_SCL_LOW;
+ 168   2              FDC1004_SDA_OUT;
+ 169   2              return(0);
+ 170   2          }
+ 171   1          else
+ 172   1          {
+ 173   2              FDC1004_SCL_LOW;
+ 174   2              FDC1004_SDA_OUT;
+ 175   2              return(1);
+ 176   2          }
+ 177   1      }
+ 178          void SNack_Master(void)
+C51 COMPILER V9.59.0.0   FDC1004                                                           04/07/2022 16:25:20 PAGE 4   
+
+ 179          {
+ 180   1          FDC1004_SDA_HIG;
+ 181   1          delayus(1);//10*1us
+ 182   1          FDC1004_SCL_HIG;
+ 183   1          delayus(1);//10*1us
+ 184   1          FDC1004_SCL_LOW;
+ 185   1      }
+ 186          /*******************************************************************************
+ 187          * º¯ÊýÃû        :  RAnswer
+ 188          * ¹¦ÄÜÃèÊö              :
+ 189          * Èë¿Úº¯Êý      :
+ 190          * ·µ»ØÖµ                :
+ 191          *******************************************************************************/
+ 192          unsigned char RAnswer(void)
+ 193          {
+ 194   1          FDC1004_SDA_HIG;
+ 195   1          delayus(1);//10*1us
+ 196   1          FDC1004_SCL_HIG;
+ 197   1          delayus(1);//10*1us
+ 198   1          if(FDC1004_SDA == 0)
+ 199   1          {
+ 200   2              FDC1004_SCL_LOW;
+ 201   2              return(0);
+ 202   2          }
+ 203   1          else
+ 204   1          {
+ 205   2              FDC1004_SCL_LOW;
+ 206   2              return(1);
+ 207   2          }
+ 208   1      }
+ 209          /*******************************************************************************
+ 210          * º¯ÊýÃû        :  FDC1004_Start
+ 211          * ¹¦ÄÜÃèÊö              :
+ 212          * Èë¿Úº¯Êý      :
+ 213          * ·µ»ØÖµ                :
+ 214          *******************************************************************************/
+ 215          void WriteData(unsigned char Data)
+ 216          {   
+ 217   1          unsigned char i;
+ 218   1          for(i=0; i<8; i++)
+ 219   1          {
+ 220   2              FDC1004_SDA=Data&0x80;
+ 221   2              delayus(1);//10*1us
+ 222   2              FDC1004_SCL_HIG;
+ 223   2              delayus(1);//10*1us
+ 224   2              FDC1004_SCL_LOW;
+ 225   2              Data<<=1;
+ 226   2          }
+ 227   1          delayus(1);//10*1us
+ 228   1      
+ 229   1          if(RAnswer()==1)
+ 230   1          {
+ 231   2              FDC1004_Stop();
+ 232   2          }
+ 233   1      }
+ 234          /*******************************************************************************
+ 235          * º¯ÊýÃû        :  FDC1004_Start
+ 236          * ¹¦ÄÜÃèÊö              :
+ 237          * Èë¿Úº¯Êý      :
+ 238          * ·µ»ØÖµ                :
+ 239          *******************************************************************************/
+ 240          void Write_Pointer(unsigned char Data)
+C51 COMPILER V9.59.0.0   FDC1004                                                           04/07/2022 16:25:20 PAGE 5   
+
+ 241          {   
+ 242   1          unsigned char i;
+ 243   1          FDC1004_SDA_OUT;
+ 244   1          FDC1004_SCL_LOW;
+ 245   1          delayus(1);//10*1us
+ 246   1          for(i=0; i<8; i++)
+ 247   1          {
+ 248   2              FDC1004_SDA=Data&0x80;
+ 249   2              delayus(1);//10*1us
+ 250   2              FDC1004_SCL_HIG;
+ 251   2              delayus(1);//10*1us
+ 252   2              FDC1004_SCL_LOW;
+ 253   2              Data=Data<<1;
+ 254   2          }
+ 255   1          delayus(1);//10*1us
+ 256   1          FDC1004_SDA_LOW;
+ 257   1          delayus(1);//10*1us
+ 258   1          FDC1004_SCL_HIG;
+ 259   1          delayus(1);//10*1us
+ 260   1          FDC1004_SCL_LOW;
+ 261   1          delayus(1);//10*1us
+ 262   1          FDC1004_SDA_HIG;
+ 263   1          delayus(1);//10*1us
+ 264   1          FDC1004_SCL_HIG;
+ 265   1      }
+ 266          void FDC1004_Write_Addr(unsigned char Data)
+ 267          {
+ 268   1          unsigned char i;
+ 269   1          Data = Data*2;//7Î»µØÖ·²¹Æë³É8Î»
+ 270   1          FDC1004_SDA_OUT;
+ 271   1          FDC1004_SCL_LOW;
+ 272   1          delayus(1);//10*1us
+ 273   1          for(i=0; i<8; i++)
+ 274   1          {
+ 275   2              FDC1004_SDA=Data&0x80;
+ 276   2              delayus(1);//10*1us
+ 277   2              FDC1004_SCL_HIG;
+ 278   2              delayus(1);//10*1us
+ 279   2              FDC1004_SCL_LOW;
+ 280   2              Data=Data<<1;
+ 281   2          }
+ 282   1          delayus(1);//10*1us
+ 283   1          if(RAnswer()==1)
+ 284   1          {
+ 285   2              FDC1004_Stop();
+ 286   2          }
+ 287   1      }
+ 288          void FDC1004_Read_Addr(unsigned char Data)
+ 289          {
+ 290   1          unsigned char i;
+ 291   1          Data = Data*2+1;//7Î»µØÖ·²¹Æë³É8Î»,×îºóÒ»Î»±ä¸ß
+ 292   1          FDC1004_SDA_OUT;
+ 293   1          FDC1004_SCL_LOW;
+ 294   1          delayus(1);//10*1us
+ 295   1          for(i=0; i<8; i++)
+ 296   1          {
+ 297   2              FDC1004_SDA=Data&0x80;
+ 298   2              delayus(1);//10*1us//10*1us
+ 299   2              FDC1004_SCL_HIG;
+ 300   2              delayus(1);//10*1us
+ 301   2              FDC1004_SCL_LOW;
+ 302   2              Data=Data<<1;
+C51 COMPILER V9.59.0.0   FDC1004                                                           04/07/2022 16:25:20 PAGE 6   
+
+ 303   2          }
+ 304   1          delayus(1);//10*1us
+ 305   1      
+ 306   1          if(RAnswer()==1)
+ 307   1          {
+ 308   2              FDC1004_Stop();
+ 309   2          }
+ 310   1      }
+ 311          
+ 312          /*******************************************************************************
+ 313          * º¯ÊýÃû        :  ReadData
+ 314          * ¹¦ÄÜÃèÊö              :
+ 315          * Èë¿Úº¯Êý      :
+ 316          * ·µ»ØÖµ                :
+ 317          *******************************************************************************/
+ 318          unsigned char ReadData(void)
+ 319          {
+ 320   1          unsigned char tmp;
+ 321   1          unsigned char i;
+ 322   1          FDC1004_SCL_LOW;
+ 323   1          delayus(1);
+ 324   1          FDC1004_SDA_IN;
+ 325   1          for(i=0; i<8; i++)
+ 326   1          {
+ 327   2              FDC1004_SCL_HIG;
+ 328   2              delayus(1);
+ 329   2              tmp = (tmp<<1) | FDC1004_SDA;
+ 330   2              FDC1004_SCL_LOW;
+ 331   2              delayus(1);
+ 332   2          }
+ 333   1          delayus(1);
+ 334   1          return(tmp);
+ 335   1      }
+ 336          
+ 337          void Config_FDC1004(unsigned char result,unsigned char address)//ÅäÖÃFDC1004
+ 338          {
+ 339   1          unsigned char i;
+ 340   1          for(i=0; i<result; i++)
+ 341   1          {
+ 342   2              FDC1004_Start();
+ 343   2              FDC1004_Write_Addr(0x50);//first write address
+ 344   2              WriteData(address);          // pointer register 0x08
+ 345   2              //Write_Pointer(address);
+ 346   2              WriteData(0x08);          // high bit data
+ 347   2              WriteData(0x00);          //low bit data
+ 348   2              FDC1004_Stop();
+ 349   2              delay5ms();
+ 350   2              address++;
+ 351   2          }
+ 352   1      }
+ 353          
+ 354          //µ¥¶ÀÅäÖÃFDCµÄÃ¿¸öÍ¨µÀ²ÉÑù
+ 355          void Config_FDC1004_Single(unsigned int Data,unsigned char address)
+ 356          {
+ 357   1          unsigned char Data_MSB=0,Data_LSB=0;
+ 358   1          Data_MSB = (Data&0xFF00)>>8;
+ 359   1          Data_LSB = (Data&0x00FF);
+ 360   1          FDC1004_Start();
+ 361   1          FDC1004_Write_Addr(0x50);//first write address
+ 362   1          WriteData(address);          // pointer register 0x08
+ 363   1          //Write_Pointer(address);
+ 364   1          WriteData(Data_MSB);          // high bit data
+C51 COMPILER V9.59.0.0   FDC1004                                                           04/07/2022 16:25:20 PAGE 7   
+
+ 365   1          WriteData(Data_MSB);          //low bit data
+ 366   1          FDC1004_Stop();
+ 367   1          delay5ms();
+ 368   1      }
+ 369          
+ 370          void Triggering_FDC1004(unsigned char address)//´¥·¢FDC1004
+ 371          {
+ 372   1          FDC1004_Start();
+ 373   1          FDC1004_Write_Addr(0x50);//first write address
+ 374   1          WriteData(address);          // pointer register 0x0C
+ 375   1          //Write_Pointer(address);
+ 376   1          WriteData(0x05);          // high bit data
+ 377   1          WriteData(0xF0);          //low bit data
+ 378   1          FDC1004_Stop();
+ 379   1      
+ 380   1      }
+ 381          void WaitFor_FDC1004(unsigned char address)//µÈ´ý²âÁ¿½áÊøFDC1004
+ 382          {
+ 383   1          unsigned int rdata;
+ 384   1          unsigned char Data;
+ 385   1          while(1)
+ 386   1          {
+ 387   2              FDC1004_Start();
+ 388   2              FDC1004_Write_Addr(0x50);//first write address
+ 389   2              Write_Pointer(address);          // pointer register 0x0C
+ 390   2              FDC1004_Start();
+ 391   2              FDC1004_Read_Addr(0x50);
+ 392   2              rdata = ReadData();
+ 393   2              SAck_Master();
+ 394   2              //if(Ack_Master()==1)
+ 395   2              //{FDC1004_Stop();}
+ 396   2              Data = ReadData();
+ 397   2              SNack_Master();
+ 398   2              FDC1004_Stop();
+ 399   2              //if(Nack_Master()==1)
+ 400   2              //{FDC1004_Stop();}
+ 401   2              rdata = rdata*256 + Data;
+ 402   2              if((rdata&0x000F)==0x000F)
+ 403   2              {
+ 404   3                  break;
+ 405   3              }
+ 406   2              delayms(100);
+ 407   2          }
+ 408   1      }
+ 409          //////////////read from FDC1004 by one byte///////////////
+ 410          unsigned int ReadID_FDC1004(unsigned char address)               /*µ¥×Ö½Ú*/
+ 411          {
+ 412   1          unsigned int rdata;
+ 413   1          unsigned char Data;
+ 414   1          FDC1004_Start();
+ 415   1          FDC1004_Write_Addr(0x50);//first write address
+ 416   1          Write_Pointer(address);          // pointer register 0x00
+ 417   1          FDC1004_Start();
+ 418   1          FDC1004_Read_Addr(0x50);
+ 419   1          rdata = ReadData(); 
+ 420   1          SAck_Master(); 
+ 421   1          Data = ReadData();
+ 422   1          SNack_Master();
+ 423   1          FDC1004_Stop(); 
+ 424   1          rdata = rdata*256 + Data;
+ 425   1      
+ 426   1          return(rdata);
+C51 COMPILER V9.59.0.0   FDC1004                                                           04/07/2022 16:25:20 PAGE 8   
+
+ 427   1      }
+ 428          //////////////read from FDC1004 by one byte///////////////
+ 429          unsigned long int ReadData_FDC1004(unsigned char address)               /*µ¥×Ö½Ú*/
+ 430          {
+ 431   1          unsigned int rdata1,rdata2;
+ 432   1          unsigned long int rdata=0;
+ 433   1          unsigned char Data;
+ 434   1          FDC1004_Start();
+ 435   1          FDC1004_Write_Addr(0x50);//first write address
+ 436   1          Write_Pointer(address);          // pointer register 0x00
+ 437   1          FDC1004_Start();
+ 438   1          FDC1004_Read_Addr(0x50);
+ 439   1          rdata1 = ReadData();
+ 440   1          SAck_Master();
+ 441   1          //if(Ack_Master()==1)
+ 442   1          //{FDC1004_Stop();}
+ 443   1          Data = ReadData();
+ 444   1          SNack_Master();
+ 445   1          FDC1004_Stop();
+ 446   1          //if(Nack_Master()==1)
+ 447   1          //{FDC1004_Stop();}
+ 448   1          rdata = rdata1*256 + Data;
+ 449   1      
+ 450   1          delayus(10);
+ 451   1          FDC1004_Start();
+ 452   1          FDC1004_Write_Addr(0x50);//first write address
+ 453   1          Write_Pointer(address+1);          // pointer register 0x00
+ 454   1          FDC1004_Read_Addr(0x50);
+ 455   1          rdata2 = ReadData();
+ 456   1          //rdata2 = 0;
+ 457   1          SAck_Master();
+ 458   1          //if(Ack_Master()==1)
+ 459   1          //{FDC1004_Stop();}
+ 460   1          Data = ReadData();
+ 461   1          SNack_Master();
+ 462   1          FDC1004_Stop();
+ 463   1          //if(Nack_Master()==1)
+ 464   1          //{FDC1004_Stop();}
+ 465   1          //rdata2 = rdata2<<8 + Data;
+ 466   1          rdata = rdata*256 + rdata2;
+ 467   1          return(rdata);
+ 468   1      }
+ 469          unsigned int ReadData_Avg(unsigned char result,unsigned char address)
+ 470          {
+ 471   1          unsigned int avg = 0;
+ 472   1          unsigned char i;
+ 473   1          address = 0x00;
+ 474   1          for(i=0; i<result; i++)
+ 475   1          {
+ 476   2              avg += ReadData_FDC1004(address);
+ 477   2              address +=2;
+ 478   2          }
+ 479   1          return(avg);
+ 480   1      }
+ 481          
+ 482          void Cap_Cac_Diplay(unsigned char lin,unsigned char column,unsigned long int Data)
+ 483          {
+ 484   1          unsigned char i;
+ 485   1          float CapResult;
+ 486   1          CapResult = (float)Data/(524288.0);//CapÎª³¤ÕûÐÍ£¬FDC1004·µ»Ø24Î»ÓÐÐ§ÊýÖµ£¨²¹ÂëÐÎÊ½£©£¬¶ÔÆä/2^19,Ò²¾ÍÊ
+             -Ç524288£¬
+ 487   1                              //Ò²¾ÍÊÇÓÒÒÆ19Î»£¬µÃµ½×îÖÕµÄµçÈÝÊýÖµxx.xxxpf¡£±¾¹¤³Ì±£ÁôËÄÎ»Ð¡Êý¾«¶È¡£
+C51 COMPILER V9.59.0.0   FDC1004                                                           04/07/2022 16:25:20 PAGE 9   
+
+ 488   1          i = (unsigned char)CapResult/10;//Ê®Î»
+ 489   1          if(i != 0)
+ 490   1              DisP_parameters(lin,column,i);
+ 491   1          else
+ 492   1              _nop_();
+ 493   1          i = (unsigned long)CapResult%10;//¸öÎ»
+ 494   1          DisP_parameters(lin,column+8,i);
+ 495   1          //Ð¡Êýµã
+ 496   1          DisP_parameters(lin,column+16,10);
+ 497   1          i = (unsigned long)(CapResult*10.0)%10;//Ê®·ÖÎ»
+ 498   1          DisP_parameters(lin,column+24,i);
+ 499   1          i = (unsigned long)(CapResult*100.0)%10;//°Ù·ÖÎ»
+ 500   1          DisP_parameters(lin,column+32,i);
+ 501   1          i = (unsigned long)(CapResult*1000.0)%10;//Ç§·ÖÎ»
+ 502   1          DisP_parameters(lin,column+40,i);
+ 503   1          i = (unsigned long)(CapResult*10000.0)%10;//Íò·ÖÎ»
+ 504   1          DisP_parameters(lin,column+48,i);
+ 505   1          //×Ö·ûp
+ 506   1          DisP_parameters(lin,column+56,11);
+ 507   1          //×Ö·ûf
+ 508   1          DisP_parameters(lin,column+64,12);
+ 509   1      }
+ 510          
+ 511          void Moisture_Cac_Diplay(unsigned char lin,unsigned char column,unsigned long int Data)
+ 512          {
+ 513   1          unsigned char i;
+ 514   1          float CapResult,MoistureResult;
+ 515   1          CapResult = (float)Data/(524288.0);//ÏÈ×ª»¯CapµÄÖµ
+ 516   1          MoistureResult = (CapResult-2.1173)*3.14907;//¸ù¾ÝÂÛÎÄÊý¾ÝÄâºÏÇúÏßµÃµ½º¬Ë®Á¿ºÍµçÈÝµÄ¹ØÏµ
+ 517   1          i = (unsigned char)MoistureResult/10;//Ê®Î»
+ 518   1          if(i != 0)
+ 519   1              DisP_parameters(lin,column,i);
+ 520   1          else
+ 521   1              _nop_();
+ 522   1          i = (unsigned long)MoistureResult%10;//¸öÎ»
+ 523   1          DisP_parameters(lin,column+8,i);
+ 524   1          //Ð¡Êýµã
+ 525   1          DisP_parameters(lin,column+16,10);
+ 526   1          i = (unsigned long)(MoistureResult*10.0)%10;//Ê®·ÖÎ»
+ 527   1          DisP_parameters(lin,column+24,i);
+ 528   1          i = (unsigned long)(MoistureResult*100.0)%10;//°Ù·ÖÎ»
+ 529   1          DisP_parameters(lin,column+32,i);
+ 530   1          //×Ö·û%
+ 531   1          DisP_parameters(lin,column+40,13);
+ 532   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1811    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      65
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

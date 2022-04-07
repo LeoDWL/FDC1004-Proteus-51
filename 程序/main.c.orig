@@ -1,0 +1,100 @@
+#include <reg52.h>
+#include "LCD12864.h"
+#include "delay.h"
+#include "i2c.h"
+
+//参数定义
+unsigned long Cap1 = 0;
+unsigned long Cap2 = 0;
+unsigned long Cap3 = 0;
+unsigned long Cap4 = 0;
+unsigned int Cap = 0;
+unsigned long int CC = 0;
+unsigned int Gain1 = 0;
+unsigned int M_ID = 0;
+unsigned int D_ID = 0;
+
+void main(void)
+{
+    InitLCD();    //初始化LCD12864
+    digplaystart();
+    delay5ms();//保持稳定
+    ClearScreen(1);
+    ClearScreen(2);
+
+    ShowChina(0,0,4);//单
+    ShowChina(0,16,5);//价
+    ShowChina(0,32,10);//:
+    ShowChina(3,0,8);//容
+    ShowChina(3,16,9);//量
+    ShowChina(3,32,10);//:
+    ShowChina(6,0,6);//金
+    ShowChina(6,16,7);//额
+    ShowChina(6,32,10);//:
+    M_ID = ReadID_FDC1004(0xFE);
+    D_ID = ReadID_FDC1004(0xFF);
+    Config_FDC1004(4,0x08);//配置FDC1004
+    Triggering_FDC1004(0x0C);//触发测量      	
+    WaitFor_FDC1004(0x0C);
+    Cap1 = ReadData_FDC1004(0x00);//读取电容值
+    Cap2 = ReadData_FDC1004(0x02);//读取电容值
+    Cap3 = ReadData_FDC1004(0x04);//读取电容值
+    Cap4 = ReadData_FDC1004(0x06);//读取电容值
+    while(1)
+    {
+        WaitFor_FDC1004(0x0C);
+		    Cap1 = ReadData_FDC1004(0x00);//读取电容值
+		  	Cap2 = ReadData_FDC1004(0x02);//读取电容值
+		  	Cap3 = ReadData_FDC1004(0x04);//读取电容值
+		  	Cap4 = ReadData_FDC1004(0x06);//读取电容值
+		  	Cap = (Cap1+Cap2+Cap3+Cap4)/4;
+
+    }
+}
+
+//void main(void)
+//{
+
+//    Cap = 0;
+//    CC = 0;
+//    delay_ms(200);
+//    M_ID = ReadID_FDC1004(0xFE);
+//    D_ID = ReadID_FDC1004(0xFF);
+//    Config_FDC1004(4,0x08);//配置FDC1004
+//    Triggering_FDC1004(0x0C);//触发测量
+//    WaitFor_FDC1004(0x0C);
+//    Cap1 = ReadData_FDC1004(0x00);//读取电容值
+//    Cap2 = ReadData_FDC1004(0x02);//读取电容值
+//    Cap3 = ReadData_FDC1004(0x04);//读取电容值
+//    Cap4 = ReadData_FDC1004(0x06);//读取电容值
+
+//    while(1)
+//    {
+//        WaitFor_FDC1004(0x0C);
+//        Cap1 = ReadData_FDC1004(0x00);//读取电容值
+//        Cap2 = ReadData_FDC1004(0x02);//读取电容值
+//        Cap3 = ReadData_FDC1004(0x04);//读取电容值
+//        Cap4 = ReadData_FDC1004(0x06);//读取电容值
+//        Cap = (Cap1+Cap2+Cap3+Cap4)/4;
+
+//        if(Test_Flag==1)
+//        {
+//            Test_Flag=0;
+//            WaitFor_FDC1004(0x0C);
+//            Cap1 = ReadData_FDC1004(0x00);//读取电容值
+//            Cap2 = ReadData_FDC1004(0x02);//读取电容值
+//            Cap3 = ReadData_FDC1004(0x04);//读取电容值
+//            Cap4 = ReadData_FDC1004(0x06);//读取电容值
+//            Cap = (Cap1+Cap2+Cap3+Cap4)/4;
+//            CC += Cap;
+
+//            Time_Cnt++;
+//            if(Time_Cnt>=5)
+//            {
+//                Time_Cnt=0;
+//                CC = CC/5;
+//                CC=0;
+//            }
+//        }
+//    }
+//}

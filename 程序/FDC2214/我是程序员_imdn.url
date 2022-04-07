@@ -1,0 +1,11 @@
+[DEFAULT]
+BASEURL=http://www.imdn.cn/
+[InternetShortcut]
+URL=http://www.imdn.cn/
+Modified=D058003EC17ACE0170
+IconFile=http://www.imdn.cn/favicon.ico
+IconIndex=1
+IDList=
+HotKey=0
+[{000214A0-0000-0000-C000-000000000046}]
+Prop3=19,2
