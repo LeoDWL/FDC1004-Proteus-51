@@ -1,53 +1,17 @@
 #include <reg52.h>
+#include <math.h>
 #include "FDC1004.h"
 #include "delay.h"
 #include "LCD12864.h"
 
-//void Display(unsigned int c)
-//{
-//    unsigned char i;
-//    unsigned char Disp1[4];
-//    i = c/10000;
-//    Disp1[0] = digit[i];
-//    i = c/1000%10;
-//    Disp1[1] = digit[i];
-//    i = c/100%10;
-//    Disp1[2] = digit[i];
-//    i = c/10%10;
-//    Disp1[3] = digit[i];
-//    for(i=0; i<4; i++)
-//    {
-//        LCDMEM[i+1] = Disp1[i];
-//    }
-//}
-
-//void Write_Opm_Float(void)
-//{
-//    unsigned char *FDC1004_StartAdr=(unsigned char *)0x01000;
-//    int *ptr=(int*)0x01000;
-////  erase flash
-//    FCTL1=0x0A502;            //Erease=1
-//    FCTL3=0x0A500;            //LOCK=0
-//    *ptr=0;
-////
-//    FCTL1=0X0A540;            //WRT=1
-//    //存储量程
-//    *FDC1004_StartAdr=f1.c[0];
-//    *(FDC1004_StartAdr+1)=f1.c[1];
-//    *(FDC1004_StartAdr+2)=f1.c[2];
-//    *(FDC1004_StartAdr+3)=f1.c[3];
-//    *(FDC1004_StartAdr+4)=dB_dBm_Flag;
-//}
-//void Read_Opm_Float(void)
-//{
-//    unsigned char *FDC1004_StartAdr=(unsigned char*)0x01000;
-//    f1.c[0]=*FDC1004_StartAdr;
-//    f1.c[1]=*(FDC1004_StartAdr+1);
-//    f1.c[2]=*(FDC1004_StartAdr+2);
-//    f1.c[3]=*(FDC1004_StartAdr+3);
-//    dB_dBm_Flag=*(FDC1004_StartAdr+4);
-//}
-
+//取绝对值
+float absfloat(float Data)
+{
+     if(Data < 0)
+         Data = -Data;
+     return(Data) ;
+         
+}
 /*******************************************************************************
 IO口模拟IIC，读写FDC1004
 ********************************************************************************/
@@ -529,4 +493,47 @@ void Moisture_Cac_Diplay(unsigned char lin,unsigned char column,unsigned long in
     DisP_parameters(lin,column+32,i);
     //字符%
     DisP_parameters(lin,column+40,13);
+}
+
+void Cap_accuracy_Diplay(unsigned char lin,unsigned char column,unsigned long int Cap_Data,float Set_Moisture_Data)
+{
+    unsigned char i;
+    float CapResult=0.0,AccuracyResult=0.0,Set_Cap_Data=0.0;
+    CapResult = (float)Cap_Data/(524288.0);//先转化Cap的值
+    Set_Cap_Data = Set_Moisture_Data*0.31755+2.1173;//根据拟合曲线计算设定的电容值
+    AccuracyResult = absfloat(Set_Cap_Data-CapResult)/Set_Cap_Data*100.0f;//求取精度
+    
+    i = (unsigned long)AccuracyResult%10;//个位
+    DisP_parameters(lin,column,i);
+    //小数点
+    DisP_parameters(lin,column+8,10);
+    i = (unsigned long)(AccuracyResult*10.0)%10;//十分位
+    DisP_parameters(lin,column+16,i);
+    i = (unsigned long)(AccuracyResult*100.0)%10;//百分位
+    DisP_parameters(lin,column+24,i);
+    i = (unsigned long)(AccuracyResult*1000.0)%10;//千分位
+    DisP_parameters(lin,column+32,i);
+    //字符%
+    DisP_parameters(lin,column+40,13);
+}
+
+float Moisture_accuracy_Diplay(unsigned char lin,unsigned char column,unsigned long int Cap_Data,float Set_Moisture_Data)
+    {
+    unsigned char i;
+    float CapResult,MoistureResult,AccuracyResult;
+    CapResult = (float)Cap_Data/(524288.0);//先转化Cap的值
+    MoistureResult = (CapResult-2.1173)*3.14907;//根据论文数据拟合曲线得到含水量和电容的关系
+    AccuracyResult = absfloat(Set_Moisture_Data-MoistureResult)/Set_Moisture_Data*100.0;//求取精度
+
+    i = (unsigned long)AccuracyResult%10;//个位
+    DisP_parameters(lin,column,i);
+    //小数点
+    DisP_parameters(lin,column+8,10);
+    i = (unsigned long)(AccuracyResult*10.0)%10;//十分位
+    DisP_parameters(lin,column+16,i);
+    i = (unsigned long)(AccuracyResult*100.0)%10;//百分位
+    DisP_parameters(lin,column+24,i);
+    //字符%
+    DisP_parameters(lin,column+32,13);
+    return (AccuracyResult/100.0);
 }

@@ -29,6 +29,7 @@
 #define ENTER_SET_DOWN   11
 #define ENTER_SET_UP     12
 
+float absfloat(float Data);
 /////////////////////////FDC1004 IIC////////////////////////////
 void FDC1004_Start(void);
 void FDC1004_Stop(void);
@@ -53,4 +54,7 @@ unsigned long int ReadData_FDC1004(unsigned char address);
 unsigned int ReadData_Avg(unsigned char result,unsigned char address);
 void Cap_Cac_Diplay(unsigned char lin,unsigned char column,unsigned long int Data);
 void Moisture_Cac_Diplay(unsigned char lin,unsigned char column,unsigned long int Data);
+void Cap_accuracy_Diplay(unsigned char lin,unsigned char column,unsigned long int Cap_Data,float Set_Cap_Data);//电容精度显示
+float Moisture_accuracy_Diplay(unsigned char lin,unsigned char column,unsigned long int Cap_Data,float Set_Moisture_Data);//含水率精度显示
+
 #endif

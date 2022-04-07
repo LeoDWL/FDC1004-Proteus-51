@@ -1,4 +1,4 @@
-C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 1   
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 23:24:26 PAGE 1   
 
 
 C51 COMPILER V9.59.0.0, COMPILATION OF MODULE LCD12864
@@ -62,7 +62,7 @@ line level    source
   52          {
   53   1          cs1=1;
   54   1          cs2=1;
-C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 2   
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 23:24:26 PAGE 2   
 
   55   1          CheckState();
   56   1          rw=0;
@@ -126,7 +126,7 @@ line level    source
  114   2              break;
  115   2          case 1:
  116   2              cs1=1;//左屏
-C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 3   
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 23:24:26 PAGE 3   
 
  117   2              nop();
  118   2              cs2=0;
@@ -190,7 +190,7 @@ line level    source
  176   1          {
  177   2              SelectScreen(2); //否则从第二屏上开始写
  178   2              column-=64; //防止越界
-C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 4   
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 23:24:26 PAGE 4   
 
  179   2              SetLine(lin);
  180   2              SetColumn(column);
@@ -244,92 +244,147 @@ line level    source
  228   1          SetStartLine(0); //开始行:0
  229   1      }
  230          
- 231          void digplaystart() {//开机显示
- 232   1          uchar i=0;
- 233   1          ShowChina(2,64-16*1.5,0);
- 234   1          ShowChina(2,64-16*0.5,1);
- 235   1          ShowChina(2,64+16*0.5,2);
- 236   1          ShowChina(2,64+16*1.5,3);
- 237   1          for (i=0; i<10; i++) {
- 238   2              ShowNumber(4,32+8*i,19);
- 239   2              delay5ms();
- 240   2              delay5ms();
-C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 5   
+ 231          void ClearScreenall() { //清全屏
+ 232   1          ClearScreen(1);
+ 233   1          ClearScreen(2);
+ 234   1      }
+ 235          
+ 236          void digplaystart() {//开机显示
+ 237   1          uchar i=0;
+ 238   1          ShowChina(2,64-16*1.5,0);
+ 239   1          ShowChina(2,64-16*0.5,1);
+ 240   1          ShowChina(2,64+16*0.5,2);
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 23:24:26 PAGE 5   
 
- 241   2          }
- 242   1      }
- 243          
- 244          //用于实时显示具体坐标的数字的函数，其中x对应的是显示器的行，y对应的是显示器的列，m对应的是要显示的数字
- 245          void DisP_parameters(int x,int y,int m) {
- 246   1          switch(m) {
- 247   2          case(1):
- 248   2              ShowNumber(x,y,1);
- 249   2              break;
- 250   2          case(2):
- 251   2              ShowNumber(x,y,2);
- 252   2              break;
- 253   2          case(3):
- 254   2              ShowNumber(x,y,3);
- 255   2              break;
- 256   2          case(4):
- 257   2              ShowNumber(x,y,4);
- 258   2              break;
- 259   2          case(5):
- 260   2              ShowNumber(x,y,5);
- 261   2              break;
- 262   2          case(6):
- 263   2              ShowNumber(x,y,6);
- 264   2              break;
- 265   2          case(7):
- 266   2              ShowNumber(x,y,7);
- 267   2              break;
- 268   2          case(8):
- 269   2              ShowNumber(x,y,8);
- 270   2              break;
- 271   2          case(9):
- 272   2              ShowNumber(x,y,9);
- 273   2              break;
- 274   2          case(0):
- 275   2              ShowNumber(x,y,0);
- 276   2              break;
- 277   2          case(10):
- 278   2              ShowNumber(x,y,13);
- 279   2              break;
- 280   2          case(11):
- 281   2              ShowNumber(x,y,14);
- 282   2              break;
- 283   2          case(12):
- 284   2              ShowNumber(x,y,15);
- 285   2              break;
- 286   2          case(13):
- 287   2              ShowNumber(x,y,16);
- 288   2              break;
- 289   2          }
- 290   1      }
- 291          
- 292          ////显示电容的数值
- 293          //void Disp_Cap(unsigned int c)
- 294          //{
- 295          //  unsigned char i;
- 296          //  unsigned char Disp1[4];
- 297          //    i = c/10000;
- 298          //      Disp1[0] = digit[i];
- 299          //      i = c/1000%10;
- 300          //      Disp1[1] = digit[i];
- 301          //      i = c/100%10;
- 302          //      Disp1[2] = digit[i];
-C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 16:25:20 PAGE 6   
+ 241   1          ShowChina(2,64+16*1.5,3);
+ 242   1          for (i=0; i<10; i++) {
+ 243   2              ShowNumber(4,32+8*i,19);
+ 244   2              delay5ms();
+ 245   2              delay5ms();
+ 246   2          }
+ 247   1      }
+ 248          
+ 249          void digplayscreen1() {//显示屏1
+ 250   1          ShowChina(0,8,4);//原
+ 251   1          ShowChina(0,24,5);//油
+ 252   1          ShowChina(0,40,6);//含
+ 253   1          ShowChina(0,56,7);//水
+ 254   1          ShowChina(0,72,8);//率
+ 255   1          ShowChina(0,88,9);//检
+ 256   1          ShowChina(0,104,10);//测
+ 257   1          ShowChina(3,0,11);//电
+ 258   1          ShowChina(3,16,12);//容
+ 259   1          ShowChina(3,32,15);//:
+ 260   1          ShowChina(6,0,6);//含
+ 261   1          ShowChina(6,16,7);//水
+ 262   1          ShowChina(6,32,8);//率
+ 263   1          ShowChina(6,48,15);//:
+ 264   1      }
+ 265          
+ 266          void digplayscreen2() {//显示屏2
+ 267   1          ShowChina(0,0,11);//电
+ 268   1          ShowChina(0,16,12);//容
+ 269   1          ShowChina(0,32,16);//精
+ 270   1          ShowChina(0,48,17);//度
+ 271   1          ShowChina(0,64,15);//:
+ 272   1          ShowChina(3,0,6);//含
+ 273   1          ShowChina(3,16,7);//水
+ 274   1          ShowChina(3,32,8);//率
+ 275   1          ShowChina(3,48,16);//精
+ 276   1          ShowChina(3,64,17);//度
+ 277   1          ShowChina(3,80,15);//:
+ 278   1          ShowChina(6,0,18);//是
+ 279   1          ShowChina(6,16,19);//否
+ 280   1          ShowChina(6,32,20);//合
+ 281   1          ShowChina(6,48,21);//格
+ 282   1          ShowChina(6,64,15);//:
+ 283   1      }
+ 284          
+ 285          void digplayOK()
+ 286          {
+ 287   1          ShowChina(6,80,20);//合
+ 288   1          ShowChina(6,96,21);//格
+ 289   1      }
+ 290          void digplayNOTOK()
+ 291          {
+ 292   1          ShowChina(6,80,22);//不
+ 293   1          ShowChina(6,96,20);//合
+ 294   1          ShowChina(6,112,21);//格
+ 295   1      }
+ 296          
+ 297          //用于实时显示具体坐标的数字的函数，其中x对应的是显示器的行，y对应的是显示器的列，m对应的是要显示的数字
+ 298          void DisP_parameters(int x,int y,int m) {
+ 299   1          switch(m) {
+ 300   2          case(1):
+ 301   2              ShowNumber(x,y,1);
+ 302   2              break;
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 23:24:26 PAGE 6   
 
- 303          //      i = c/10%10;
- 304          //      Disp1[3] = digit[i];
- 305          //  for(i=0;i<4;i++)
- 306          //  {LCDMEM[i+1] = Disp1[i];}
- 307          //}
+ 303   2          case(2):
+ 304   2              ShowNumber(x,y,2);
+ 305   2              break;
+ 306   2          case(3):
+ 307   2              ShowNumber(x,y,3);
+ 308   2              break;
+ 309   2          case(4):
+ 310   2              ShowNumber(x,y,4);
+ 311   2              break;
+ 312   2          case(5):
+ 313   2              ShowNumber(x,y,5);
+ 314   2              break;
+ 315   2          case(6):
+ 316   2              ShowNumber(x,y,6);
+ 317   2              break;
+ 318   2          case(7):
+ 319   2              ShowNumber(x,y,7);
+ 320   2              break;
+ 321   2          case(8):
+ 322   2              ShowNumber(x,y,8);
+ 323   2              break;
+ 324   2          case(9):
+ 325   2              ShowNumber(x,y,9);
+ 326   2              break;
+ 327   2          case(0):
+ 328   2              ShowNumber(x,y,0);
+ 329   2              break;
+ 330   2          case(10):
+ 331   2              ShowNumber(x,y,13);
+ 332   2              break;
+ 333   2          case(11):
+ 334   2              ShowNumber(x,y,14);
+ 335   2              break;
+ 336   2          case(12):
+ 337   2              ShowNumber(x,y,15);
+ 338   2              break;
+ 339   2          case(13):
+ 340   2              ShowNumber(x,y,16);
+ 341   2              break;
+ 342   2          }
+ 343   1      }
+ 344          
+ 345          ////显示电容的数值
+ 346          //void Disp_Cap(unsigned int c)
+ 347          //{
+ 348          //  unsigned char i;
+ 349          //  unsigned char Disp1[4];
+ 350          //    i = c/10000;
+ 351          //      Disp1[0] = digit[i];
+ 352          //      i = c/1000%10;
+ 353          //      Disp1[1] = digit[i];
+ 354          //      i = c/100%10;
+ 355          //      Disp1[2] = digit[i];
+ 356          //      i = c/10%10;
+ 357          //      Disp1[3] = digit[i];
+ 358          //  for(i=0;i<4;i++)
+ 359          //  {LCDMEM[i+1] = Disp1[i];}
+ 360          //}
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    791    ----
-   CONSTANT SIZE    =    832    ----
+   CODE SIZE        =   1111    ----
+C51 COMPILER V9.59.0.0   LCD12864                                                          04/07/2022 23:24:26 PAGE 7   
+
+   CONSTANT SIZE    =   1056    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----      22

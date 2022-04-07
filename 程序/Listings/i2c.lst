@@ -1,4 +1,4 @@
-C51 COMPILER V9.59.0.0   I2C                                                               04/07/2022 16:25:20 PAGE 1   
+C51 COMPILER V9.59.0.0   I2C                                                               04/07/2022 23:24:26 PAGE 1   
 
 
 C51 COMPILER V9.59.0.0, COMPILATION OF MODULE I2C
@@ -62,7 +62,7 @@ line level    source
   52   2              sda = CY;
   53   2              delay_us();
   54   2              scl = 1;
-C51 COMPILER V9.59.0.0   I2C                                                               04/07/2022 16:25:20 PAGE 2   
+C51 COMPILER V9.59.0.0   I2C                                                               04/07/2022 23:24:26 PAGE 2   
 
   55   2              delay_us();
   56   2          }
@@ -126,7 +126,7 @@ line level    source
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-C51 COMPILER V9.59.0.0   I2C                                                               04/07/2022 16:25:20 PAGE 3   
+C51 COMPILER V9.59.0.0   I2C                                                               04/07/2022 23:24:26 PAGE 3   
 
    CODE SIZE        =    239    ----
    CONSTANT SIZE    =   ----    ----

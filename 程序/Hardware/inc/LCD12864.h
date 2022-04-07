@@ -31,7 +31,12 @@ void ClearScreen(uchar screen);
 void ShowNumber(uchar lin,uchar column,uchar num);
 void ShowChina(uchar lin,uchar column,uchar num);
 void InitLCD(void);
+void ClearScreenall();
 void digplaystart();
+void digplayscreen1();
+void digplayscreen2();
 void DisP_parameters(int x,int y,int m);
+void digplayOK();
+void digplayNOTOK();
 extern void          _nop_     (void);
 #endif

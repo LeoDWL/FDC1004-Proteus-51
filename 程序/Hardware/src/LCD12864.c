@@ -228,6 +228,11 @@ void InitLCD(void) //初始化LCD
     SetStartLine(0); //开始行:0
 }
 
+void ClearScreenall() { //清全屏
+    ClearScreen(1);
+    ClearScreen(2);
+}
+
 void digplaystart() {//开机显示
     uchar i=0;
     ShowChina(2,64-16*1.5,0);
@@ -239,6 +244,54 @@ void digplaystart() {//开机显示
         delay5ms();
         delay5ms();
     }
+}
+
+void digplayscreen1() {//显示屏1
+    ShowChina(0,8,4);//原
+    ShowChina(0,24,5);//油
+    ShowChina(0,40,6);//含
+    ShowChina(0,56,7);//水
+    ShowChina(0,72,8);//率
+    ShowChina(0,88,9);//检
+    ShowChina(0,104,10);//测
+    ShowChina(3,0,11);//电
+    ShowChina(3,16,12);//容
+    ShowChina(3,32,15);//:
+    ShowChina(6,0,6);//含
+    ShowChina(6,16,7);//水
+    ShowChina(6,32,8);//率
+    ShowChina(6,48,15);//:
+}
+
+void digplayscreen2() {//显示屏2
+    ShowChina(0,0,11);//电
+    ShowChina(0,16,12);//容
+    ShowChina(0,32,16);//精
+    ShowChina(0,48,17);//度
+    ShowChina(0,64,15);//:
+    ShowChina(3,0,6);//含
+    ShowChina(3,16,7);//水
+    ShowChina(3,32,8);//率
+    ShowChina(3,48,16);//精
+    ShowChina(3,64,17);//度
+    ShowChina(3,80,15);//:
+    ShowChina(6,0,18);//是
+    ShowChina(6,16,19);//否
+    ShowChina(6,32,20);//合
+    ShowChina(6,48,21);//格
+    ShowChina(6,64,15);//:
+}
+
+void digplayOK()
+{
+    ShowChina(6,80,20);//合
+    ShowChina(6,96,21);//格
+}
+void digplayNOTOK()
+{
+    ShowChina(6,80,22);//不
+    ShowChina(6,96,20);//合
+    ShowChina(6,112,21);//格
 }
 
 //用于实时显示具体坐标的数字的函数，其中x对应的是显示器的行，y对应的是显示器的列，m对应的是要显示的数字
